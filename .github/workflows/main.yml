@@ -51,15 +51,15 @@ jobs:
       - name: Attach compressed file to release
         uses: actions/upload-artifact@v3
         with:
-          name: release-zip
+          name: linux-release
           path: jikken-x86_64-linux.tar.gz
 
       - name: set_pre_release
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
-            echo "::set-output name=prerelease::false"
+            echo "::setOutput name=prerelease::false"
           else
-            echo "::set-output name=prerelease::true"
+            echo "::setOutput name=prerelease::true"
           fi
 
       - name: Create Release
@@ -67,8 +67,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.0.2  # Replace with your desired version tag
-          release_name: Release v1.0.2  # Replace with your desired release name
+          tag_name: v1.0.3  # Replace with your desired version tag
+          release_name: Release v1.0.3  # Replace with your desired release name
           body: |
             **Release Notes**
 
@@ -81,7 +81,6 @@ jobs:
             - Windows (jikken-windows.zip)
             - Linux (jikken-x86_64-linux.tar.gz) ${{ env.LINUX_ZIP_HASH }}
             - Mac (jikken-x86_64-apple-darwin.tar.gz) MAC.tar.gz HASH
+
           draft: false
           prerelease: ${{ steps.set_pre_release.outputs.prerelease }}
-#          file: jikken-x86_64-linux.tar.gz
-#          assets: jikken-x86_64-linux.tar.gz
