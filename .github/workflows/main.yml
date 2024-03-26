@@ -83,4 +83,4 @@ jobs:
             - Mac (jikken-x86_64-apple-darwin.tar.gz) MAC.tar.gz HASH
 
           draft: false
-          prerelease: $prerelease
+          prerelease: ${{ env.PRERELEASE }}
