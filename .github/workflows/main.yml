@@ -38,7 +38,7 @@ jobs:
 
       - name: Zip the Program
         run: |
-          tar -zcvf /target/release/* jikken-x86_64-linux.tar.gz jk
+          tar -zcvf jikken-x86_64-linux.tar.gz /target/release/*
 #          zip -r jikken_linux.zip target/release/*
 
       - name: Calculate SHA-256 Hash of Zip File
