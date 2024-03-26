@@ -9,14 +9,7 @@ jobs:
     runs-on: ubuntu-latest  # Use a Linux-based runner for Rust compatibility
 
     steps:
-      - uses: actions/checkout@v3  # Check out the repository's code
-
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable  # Use the stable Rust toolchain
-          components: rustfmt, clippy  # Optional for formatting and linting
-          override: true
+      - uses: actions/checkout@main  # Check out the repository's code
 
       - name: Build and Compile
         run: cargo build --release  # Build in release mode for optimized output
@@ -49,7 +42,7 @@ jobs:
           echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> $GITHUB_ENV
 
       - name: Attach compressed file to release
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: jikken-x86_64-linux.tar.gz
           path: jikken-x86_64-linux.tar.gz
@@ -63,12 +56,12 @@ jobs:
           fi
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: actions/create-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.0.8  # Replace with your desired version tag
-          release_name: Release v1.0.8  # Replace with your desired release name
+          tag_name: v1.1.0  # Replace with your desired version tag
+          release_name: Release v1.1.0  # Replace with your desired release name
           body: |
             **Release Notes**
 
