@@ -23,17 +23,17 @@ jobs:
 
       - name: Calculate SHA-256 Hash of Executable
         run: |
-          sha256sum target/release/your-program-name > executable_hash.txt
+          sha256sum target/release/jikken > executable_hash.txt
           cat executable_hash.txt
           echo "Executable SHA-256 hash: $(cat executable_hash.txt)"
           echo "EXECUTABLE_HASH=$(cat executable_hash.txt)" >> $GITHUB_ENV
 
       - name: Zip the Program
-        run: zip -r release.zip target/release/*
+        run: zip -r jikken_linux.zip target/release/*
 
       - name: Calculate SHA-256 Hash of Zip File
         run: |
-          sha256sum release.zip > zip_hash.txt
+          sha256sum jikken_linux.zip > zip_hash.txt
           cat zip_hash.txt
           echo "Zip SHA-256 hash: $(cat zip_hash.txt)"
           echo "ZIP_HASH=$(cat zip_hash.txt)" >> $GITHUB_ENV
@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: release-zip
-          path: release.zip
+          path: jikken_linux.zip
 
       - name: Set pre-release based on branch
         run: |
@@ -66,5 +66,4 @@ jobs:
             - Zip SHA-256 hash: ${{ env.ZIP_HASH }}
           draft: false
           prerelease: ${{ steps.set_pre_release.outputs.prerelease }}
-          file: release.zip
-          item: 
+          file: jikken_linux.zip
