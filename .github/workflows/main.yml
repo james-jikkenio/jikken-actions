@@ -26,7 +26,7 @@ jobs:
           sha256sum target/release/your-program-name > executable_hash.txt
           cat executable_hash.txt
           echo "Executable SHA-256 hash: $(cat executable_hash.txt)"
-          echo "EXECUTABLE_HASH=$(cat executable_hash.txt)" >> $GITHUB_ENV  # Store hash as an environment variable
+          echo "EXECUTABLE_HASH=$(cat executable_hash.txt)" >> $GITHUB_ENV
 
       - name: Zip the Program
         run: zip -r release.zip target/release/*
@@ -36,7 +36,7 @@ jobs:
           sha256sum release.zip > zip_hash.txt
           cat zip_hash.txt
           echo "Zip SHA-256 hash: $(cat zip_hash.txt)"
-          echo "ZIP_HASH=$(cat zip_hash.txt)" >> $GITHUB_ENV  # Store hash as an environment variable
+          echo "ZIP_HASH=$(cat zip_hash.txt)" >> $GITHUB_ENV
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@v3
@@ -55,7 +55,7 @@ jobs:
       - name: Create Release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Access token for creating releases
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
           tag_name: v1.0.0  # Replace with your desired version tag
           release_name: Release v1.0.0  # Replace with your desired release name
@@ -65,6 +65,6 @@ jobs:
             - Executable SHA-256 hash: ${{ env.EXECUTABLE_HASH }}
             - Zip SHA-256 hash: ${{ env.ZIP_HASH }}
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.set_pre_release.outputs.prerelease }}
           file: release.zip
           item: 
