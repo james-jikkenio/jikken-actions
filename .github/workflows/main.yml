@@ -8,7 +8,17 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest  # Use a Linux-based runner for Rust compatibility
 
+
+
     steps:
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          ## limits ssh access and adds the ssh public key for the user which triggered the workflow
+          limit-access-to-actor: true
+          ## limits ssh access and adds the ssh public keys of the listed GitHub users
+          limit-access-to-users: james-jikkenio,louis-jikkenio
+
       - uses: actions/checkout@v3  # Check out the repository's code
 
       - name: Install Rust toolchain
