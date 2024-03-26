@@ -37,7 +37,9 @@ jobs:
           echo "EXECUTABLE_HASH=$(cat executable_hash.txt)" >> $GITHUB_ENV
 
       - name: Zip the Program
-        run: zip -r jikken_linux.zip target/release/*
+        run: |
+          tar -zcvf /target/release/* jikken-x86_64-linux.tar.gz jk
+#          zip -r jikken_linux.zip target/release/*
 
       - name: Calculate SHA-256 Hash of Zip File
         run: |
@@ -50,7 +52,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: release-zip
-          path: jikken_linux.zip
+          path: jikken-x86_64-linux.tar.gz
 
       - name: set_pre_release
         run: |
@@ -77,5 +79,5 @@ jobs:
                 ${{ env.ZIP_HASH }}
           draft: false
           prerelease: ${{ steps.set_pre_release.outputs.prerelease }}
-          file: jikken_linux.zip
-          assets: jikken_linux.zip
+          file: jikken-x86_64-linux.tar.gz
+          assets: jikken-x86_64-linux.tar.gz
