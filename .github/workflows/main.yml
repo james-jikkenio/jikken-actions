@@ -57,9 +57,9 @@ jobs:
       - name: Release Type
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
-            prerelease=false
+            echo "PRERELEASE=false" >> $GITHUB_ENV
           else
-            prerelease=true
+            echo "PRERELEASE=true" >> $GITHUB_ENV
           fi
 
       - name: Create Release
@@ -67,8 +67,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.0.6  # Replace with your desired version tag
-          release_name: Release v1.0.6  # Replace with your desired release name
+          tag_name: v1.0.7  # Replace with your desired version tag
+          release_name: Release v1.0.7  # Replace with your desired release name
           body: |
             **Release Notes**
 
