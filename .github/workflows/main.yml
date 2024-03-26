@@ -36,12 +36,12 @@ jobs:
           echo "Executable SHA-256 hash: $(cat linux_executable_hash.txt)"
           echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> $GITHUB_ENV
 
-      - name: Zip the Program
+      - name: Compress the Program
         run: |
           tar -zcvf jikken-x86_64-linux.tar.gz target/release/
 #          zip -r jikken_linux.zip target/release/*
 
-      - name: Calculate SHA-256 Hash of Zip File
+      - name: Calculate SHA-256 Hash of Compressed File
         run: |
           sha256sum jikken-x86_64-linux.tar.gz > linux_zip_hash.txt
           cat linux_zip_hash.txt
@@ -54,12 +54,12 @@ jobs:
           name: jikken-x86_64-linux.tar.gz
           path: jikken-x86_64-linux.tar.gz
 
-      - name: Set output
+      - name: Release Type
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
-            echo "prerelease=false" >> $GITHUB_OUTPUT
+            prerelease=false
           else
-            echo "prerelease=true" >> $GITHUB_OUTPUT
+            prerelease=true
           fi
 
       - name: Create Release
