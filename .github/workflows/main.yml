@@ -43,7 +43,7 @@ jobs:
 
       - name: Calculate SHA-256 Hash of Zip File
         run: |
-          sha256sum jikken_linux.zip > zip_hash.txt
+          sha256sum jikken-x86_64-linux.tar.gz > zip_hash.txt
           cat zip_hash.txt
           echo "Zip SHA-256 hash: $(cat zip_hash.txt)"
           echo "ZIP_HASH=$(cat zip_hash.txt)" >> $GITHUB_ENV
