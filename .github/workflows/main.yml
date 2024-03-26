@@ -51,15 +51,15 @@ jobs:
       - name: Attach compressed file to release
         uses: actions/upload-artifact@v3
         with:
-          name: linux-release
+          name: jikken-x86_64-linux.tar.gz
           path: jikken-x86_64-linux.tar.gz
 
       - name: Set output
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
-            echo "false" >> $GITHUB_OUTPUT
+            echo "prerelease=false" >> $GITHUB_OUTPUT
           else
-            echo "true" >> $GITHUB_OUTPUT
+            echo "prerelease=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Create Release
