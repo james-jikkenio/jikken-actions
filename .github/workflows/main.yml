@@ -52,7 +52,7 @@ jobs:
           name: release-zip
           path: jikken_linux.zip
 
-      - name: Set pre-release based on branch
+      - name: set_pre_release
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
             echo "::set-output name=prerelease::false"
@@ -62,16 +62,20 @@ jobs:
 
       - name: Create Release
         uses: actions/create-release@v1
+
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.0.0  # Replace with your desired version tag
-          release_name: Release v1.0.0  # Replace with your desired release name
+          tag_name: v1.0.1  # Replace with your desired version tag
+          release_name: Release v1.0.1  # Replace with your desired release name
           body: |
             **Release Notes**
 
-            - Executable SHA-256 hash: ${{ env.EXECUTABLE_HASH }}
-            - Zip SHA-256 hash: ${{ env.ZIP_HASH }}
+            - Executable SHA-256 linux hash: 
+                ${{ env.EXECUTABLE_HASH }}
+            - Zip SHA-256 linux hash: 
+                ${{ env.ZIP_HASH }}
           draft: false
           prerelease: ${{ steps.set_pre_release.outputs.prerelease }}
           file: jikken_linux.zip
+          assets: jikken_linux.zip
