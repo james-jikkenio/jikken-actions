@@ -1,42 +1,70 @@
-name: Github Actions Test
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+name: Build, Compile, and Release Rust Program
+
 on:
-  pull_request:
-    branches: [ "main", "develop" ]
-env:
-  CARGO_TERM_COLOR: always
+  push:
+    branches: [ main, develop ]  # Trigger the workflow on pushes to the main branch
+
 jobs:
-  build-linux:
-    name: linux build
-    runs-on: ubuntu-latest
+  build-and-release:
+    runs-on: ubuntu-latest  # Use a Linux-based runner for Rust compatibility
+
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    # - name: upload binary
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: Go-results-${{ matrix.go-version }}
-    #     path: TestResults-${{ matrix.go-version }}.json
-  
-  build-windows:
-    name: windows build
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-      
-  build-macosx:
-    name: macosx build
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v3  # Check out the repository's code
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable  # Use the stable Rust toolchain
+          components: rustfmt, clippy  # Optional for formatting and linting
+          override: true
+
+      - name: Build and Compile
+        run: cargo build --release  # Build in release mode for optimized output
+
+      - name: Calculate SHA-256 Hash of Executable
+        run: |
+          sha256sum target/release/your-program-name > executable_hash.txt
+          cat executable_hash.txt
+          echo "Executable SHA-256 hash: $(cat executable_hash.txt)"
+          echo "EXECUTABLE_HASH=$(cat executable_hash.txt)" >> $GITHUB_ENV  # Store hash as an environment variable
+
+      - name: Zip the Program
+        run: zip -r release.zip target/release/*
+
+      - name: Calculate SHA-256 Hash of Zip File
+        run: |
+          sha256sum release.zip > zip_hash.txt
+          cat zip_hash.txt
+          echo "Zip SHA-256 hash: $(cat zip_hash.txt)"
+          echo "ZIP_HASH=$(cat zip_hash.txt)" >> $GITHUB_ENV  # Store hash as an environment variable
+
+      - name: Attach compressed file to release
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-zip
+          path: release.zip
+
+      - name: Set pre-release based on branch
+        run: |
+          if [[ ${{ github.ref }} == refs/heads/main ]]; then
+            echo "::set-output name=prerelease::false"
+          else
+            echo "::set-output name=prerelease::true"
+          fi
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Access token for creating releases
+        with:
+          tag_name: v1.0.0  # Replace with your desired version tag
+          release_name: Release v1.0.0  # Replace with your desired release name
+          body: |
+            **Release Notes**
+
+            - Executable SHA-256 hash: ${{ env.EXECUTABLE_HASH }}
+            - Zip SHA-256 hash: ${{ env.ZIP_HASH }}
+          draft: false
+          prerelease: false
+          file: release.zip
+          item: 
