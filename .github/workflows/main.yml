@@ -5,47 +5,73 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest  # Use a Linux-based runner for Rust compatibility
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@main  # Check out the repository's code
+      - uses: actions/checkout@v3
 
-      - name: Build and Compile
-        run: cargo build --release  # Build in release mode for optimized output
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable  # Use the stable Rust toolchain
+          components: rustfmt, clippy  # Optional for formatting and linting
+          override: tru
 
-      # - name: Setup upterm session
-      #   uses: lhotari/action-upterm@v1
-      #   with:
-      #     ## limits ssh access and adds the ssh public key for the user which triggered the workflow
-      #     limit-access-to-actor: true
-      #     ## limits ssh access and adds the ssh public keys of the listed GitHub users
-      #     limit-access-to-users: james-jikkenio,louis-jikkenio
-
-      - name: Calculate SHA-256 Hash of Executable
+      - name: Build (Linux)
         run: |
+          cargo build --release
           sha256sum target/release/jk > linux_executable_hash.txt
           cat linux_executable_hash.txt
           echo "Executable SHA-256 hash: $(cat linux_executable_hash.txt)"
           echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> $GITHUB_ENV
-
-      - name: Compress the Program
-        run: |
           tar -zcvf jikken-x86_64-linux.tar.gz target/release/
-#          zip -r jikken_linux.zip target/release/*
-
-      - name: Calculate SHA-256 Hash of Compressed File
-        run: |
           sha256sum jikken-x86_64-linux.tar.gz > linux_zip_hash.txt
           cat linux_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat linux_zip_hash.txt)"
           echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> $GITHUB_ENV
 
-      - name: Attach compressed file to release
-        uses: actions/upload-artifact@main
+      - name: Build (macOS)
+        run: |
+          cargo build --release
+          sha256sum target/release/jk > mac_executable_hash.txt
+          cat mac_executable_hash.txt
+          echo "Executable SHA-256 hash: $(cat mac_executable_hash.txt)"
+          echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> $GITHUB_ENV
+          tar -zcvf jikken-x86_64-apple-darwin.tar.gz target/release/
+          sha256sum jikken-x86_64-apple-darwin.tar.gz > mac_zip_hash.txt
+          cat mac_zip_hash.txt
+          echo "Zip SHA-256 hash: $(cat mac_zip_hash.txt)"
+          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> $GITHUB_ENV
+
+      - name: Build (Windows)
+        run: |
+          cargo build --release --target x86_64-pc-windows-gnu
+          sha256sum target/release/program* >> win_executable_hash.txt
+          cat win_executable_hash.txt
+          echo "Executable SHA-256 hash: $(cat win_executable_hash.txt)"
+          echo "WIN_EXECUTABLE_HASH=$(cat win_executable_hash.txt)" >> $GITHUB_ENV
+          zip -r x86_64-pc-windows-gnu.zip target/release/*
+          sha256sum *.zip >> win_zip_hash.txt
+          cat win_zip_hash.txt
+          echo "Zip SHA-256 hash: $(cat win_zip_hash.txt)"
+          echo "WIN_ZIP_HASH=$(cat win_zip_hash.txt)" >> $GITHUB_ENV
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
         with:
-          name: jikken-x86_64-linux.tar.gz
-          path: jikken-x86_64-linux.tar.gz
+          name: ${{ matrix.os }}-artifacts
+          path: target/release/program* checksums.txt
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@main
 
       - name: Release Type
         run: |
