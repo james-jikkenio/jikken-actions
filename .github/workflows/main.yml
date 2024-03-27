@@ -8,18 +8,16 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@main
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable  # Use the stable Rust toolchain
-          components: rustfmt, clippy  # Optional for formatting and linting
-          override: tru
 
       - name: Build (Linux)
         run: |
@@ -47,21 +45,25 @@ jobs:
           echo "Zip SHA-256 hash: $(cat mac_zip_hash.txt)"
           echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> $GITHUB_ENV
 
-      - name: Build (Windows)
-        run: |
-          cargo build --release --target x86_64-pc-windows-gnu
-          sha256sum target/release/program* >> win_executable_hash.txt
-          cat win_executable_hash.txt
-          echo "Executable SHA-256 hash: $(cat win_executable_hash.txt)"
-          echo "WIN_EXECUTABLE_HASH=$(cat win_executable_hash.txt)" >> $GITHUB_ENV
-          zip -r x86_64-pc-windows-gnu.zip target/release/*
-          sha256sum *.zip >> win_zip_hash.txt
-          cat win_zip_hash.txt
-          echo "Zip SHA-256 hash: $(cat win_zip_hash.txt)"
-          echo "WIN_ZIP_HASH=$(cat win_zip_hash.txt)" >> $GITHUB_ENV
+#      - name: Build (Windows)
+#        run: |
+          # cargo build --release
+          # powershell -Command "Get-FileHash -Path target\release\jk.exe -Algorithm SHA256 | Select-Object -ExpandProperty Hash"
+          # 7z a your_executable.zip target\release\jk.exe
+          # powershell -Command "Get-FileHash -Path jk.zip -Algorithm SHA256 | Select-Object -ExpandProperty Hash"
+
+          # sha256sum target/release/program* >> win_executable_hash.txt
+          # cat win_executable_hash.txt
+          # echo "Executable SHA-256 hash: $(cat win_executable_hash.txt)"
+          # echo "WIN_EXECUTABLE_HASH=$(cat win_executable_hash.txt)" >> $GITHUB_ENV
+          # zip -r x86_64-pc-windows-gnu.zip target/release/*
+          # sha256sum *.zip >> win_zip_hash.txt
+          # cat win_zip_hash.txt
+          # echo "Zip SHA-256 hash: $(cat win_zip_hash.txt)"
+          # echo "WIN_ZIP_HASH=$(cat win_zip_hash.txt)" >> $GITHUB_ENV
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.os }}-artifacts
           path: target/release/program* checksums.txt
