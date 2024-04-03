@@ -22,12 +22,12 @@ jobs:
           sha256sum target/release/jk > linux_executable_hash.txt
           cat linux_executable_hash.txt
           echo "Executable SHA-256 hash: $(cat linux_executable_hash.txt)"
-          echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> "$GITHUB_OUTPUT"
+          echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> "$GITHUB_ENV"
           tar -zcvf jikken-x86_64-linux.tar.gz target/release/
           sha256sum jikken-x86_64-linux.tar.gz > linux_zip_hash.txt
           cat linux_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat linux_zip_hash.txt)"
-          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_OUTPUT"
+          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV"
           echo "::set-output name=LINUX_ZIP_HASH::$(cat linux_zip_hash.txt)"
 
       - name: Attach compressed file to release
@@ -52,12 +52,12 @@ jobs:
           openssl sha256 target/release/jk > mac_executable_hash.txt
           cat mac_executable_hash.txt
           echo "Executable SHA-256 hash: $(cat mac_executable_hash.txt)"
-          echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> "$GITHUB_OUTPUT"
+          echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> "$GITHUB_ENV"
           tar -zcvf jikken-x86_64-apple-darwin.tar.gz target/release/
           openssl sha256 jikken-x86_64-apple-darwin.tar.gz > mac_zip_hash.txt
           cat mac_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat mac_zip_hash.txt)"
-          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_OUTPUT"
+          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV"
           echo "::set-output name=MAC_ZIP_HASH::$(cat mac_zip_hash.txt)"
 
       - name: Attach compressed file to release
@@ -112,14 +112,14 @@ jobs:
             echo "PRERELEASE=true" >> "$GITHUB_ENV"
           fi
 
-      - uses: actions/checkout@main
-      - name: Get ENV Variables
-        run: |
-          echo "Windows (jk.exe): WINDOWS-HASH"
-          echo "Linux (jk): ${{ steps.build-linux.outputs.LINUX_EXECUTABLE_HASH }}"
-          echo "Linux compressed hash ${{ steps.build-linux.outputs.LINUX_ZIP_HASH }}"
-          echo "Mac (jk): ${{ steps.build-mac.outputs.MAC_EXECUTABLE_HASH }}"
-          echo "MacOS compressed hash ${{ steps.build-mac.outputs.MAC_ZIP_HASH }}"
+      # - uses: actions/checkout@main
+      # - name: Get ENV Variables
+      #   run: |
+      #     echo "Windows (jk.exe): WINDOWS-HASH"
+      #     echo "Linux (jk): ${{ steps.build-linux.outputs.LINUX_EXECUTABLE_HASH }}"
+      #     echo "Linux compressed hash ${{ steps.build-linux.outputs.LINUX_ZIP_HASH }}"
+      #     echo "Mac (jk): ${{ steps.build-mac.outputs.MAC_EXECUTABLE_HASH }}"
+      #     echo "MacOS compressed hash ${{ steps.build-mac.outputs.MAC_ZIP_HASH }}"
 
 
       - name: Create Release
@@ -127,8 +127,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.1.8  # Replace with your desired version tag
-          release_name: Release v1.1.8  # Replace with your desired release name
+          tag_name: v1.1.9  # Replace with your desired version tag
+          release_name: Release v1.1.9  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
@@ -142,7 +142,11 @@ jobs:
             SHA-256 Binary Hashes of compressed files.              
             - Windows (jikken-windows.zip)
             - Linux (jikken-x86_64-linux.tar.gz) ${{ steps.compile-linux.outputs.LINUX_ZIP_HASH }}
+            ${LINUX_ZIP_HASH}
+            $LINUX_ZIP_HASH
             - Mac (jikken-x86_64-apple-darwin.tar.gz) ${{ steps.compile-mac.outputs.MAC_ZIP_HASH }}
+            ${MAC_ZIP_HASH}
+            $MAC_ZIP_HASH
 
 
           draft: false
