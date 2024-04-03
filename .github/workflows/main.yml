@@ -27,6 +27,7 @@ jobs:
           cat linux_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat linux_zip_hash.txt)"
           echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> $GITHUB_OUTPUT
+          echo "::set-output name=LINUX_ZIP_HASH::$(cat linux_zip_hash.txt)"
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
@@ -56,6 +57,7 @@ jobs:
           cat mac_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat mac_zip_hash.txt)"
           echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> $GITHUB_OUTPUT
+          echo "::set-output name=MAC_ZIP_HASH::$(cat mac_zip_hash.txt)"
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
@@ -124,8 +126,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.1.5  # Replace with your desired version tag
-          release_name: Release v1.1.5  # Replace with your desired release name
+          tag_name: v1.1.6  # Replace with your desired version tag
+          release_name: Release v1.1.6  # Replace with your desired release name
           body: |
             **Release Notes**
 
@@ -137,7 +139,9 @@ jobs:
             SHA-256 Binary Hashes of compressed files.              
             - Windows (jikken-windows.zip)
             - Linux (jikken-x86_64-linux.tar.gz) ${{ steps.build-linux.outputs.LINUX_ZIP_HASH }}
+            - Linux (jikken-x86_64-linux.tar.gz)v2 ${{ needs.build-linux.outputs.LINUX_ZIP_HASH }}
             - Mac (jikken-x86_64-apple-darwin.tar.gz) ${{ steps.build-mac.outputs.MAC_ZIP_HASH }}
+            - Mac (jikken-x86_64-apple-darwin.tar.gz)v2 ${{ needs.build-mac.outputs.MAC_ZIP_HASH }}
 
           draft: false
           prerelease: ${{ env.PRERELEASE }}
