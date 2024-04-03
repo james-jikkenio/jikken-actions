@@ -141,14 +141,14 @@ jobs:
           echo "Windows (jk.exe): WINDOWS-HASH"
           echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV"
           echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV"
-
+          echo $(pwd)
       - name: Create Release
         uses: actions/create-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.2.0  # Replace with your desired version tag
-          release_name: Release v1.2.0  # Replace with your desired release name
+          tag_name: v1.2.1  # Replace with your desired version tag
+          release_name: Release v1.2.1  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
@@ -166,3 +166,11 @@ jobs:
 
           draft: false
           prerelease: ${{ env.PRERELEASE }}
+
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          ## limits ssh access and adds the ssh public key for the user which triggered the workflow
+          limit-access-to-actor: true
+          ## limits ssh access and adds the ssh public keys of the listed GitHub users
+          limit-access-to-users: james-jikkenio,louis-jikkenio
