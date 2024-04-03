@@ -21,12 +21,12 @@ jobs:
           sha256sum target/release/jk > linux_executable_hash.txt
           cat linux_executable_hash.txt
           echo "Executable SHA-256 hash: $(cat linux_executable_hash.txt)"
-          echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> $GITHUB_OUTPUT
+          echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> "$GITHUB_OUTPUT"
           tar -zcvf jikken-x86_64-linux.tar.gz target/release/
           sha256sum jikken-x86_64-linux.tar.gz > linux_zip_hash.txt
           cat linux_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat linux_zip_hash.txt)"
-          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> $GITHUB_OUTPUT
+          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_OUTPUT"
           echo "::set-output name=LINUX_ZIP_HASH::$(cat linux_zip_hash.txt)"
 
       - name: Attach compressed file to release
@@ -51,12 +51,12 @@ jobs:
           openssl sha256 target/release/jk > mac_executable_hash.txt
           cat mac_executable_hash.txt
           echo "Executable SHA-256 hash: $(cat mac_executable_hash.txt)"
-          echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> $GITHUB_OUTPUT
+          echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> "$GITHUB_OUTPUT"
           tar -zcvf jikken-x86_64-apple-darwin.tar.gz target/release/
           openssl sha256 jikken-x86_64-apple-darwin.tar.gz > mac_zip_hash.txt
           cat mac_zip_hash.txt
           echo "Zip SHA-256 hash: $(cat mac_zip_hash.txt)"
-          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> $GITHUB_OUTPUT
+          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_OUTPUT"
           echo "::set-output name=MAC_ZIP_HASH::$(cat mac_zip_hash.txt)"
 
       - name: Attach compressed file to release
@@ -84,12 +84,12 @@ jobs:
           # sha256sum target/release/program* >> win_executable_hash.txt
           # cat win_executable_hash.txt
           # echo "Executable SHA-256 hash: $(cat win_executable_hash.txt)"
-          # echo "WIN_EXECUTABLE_HASH=$(cat win_executable_hash.txt)" >> $GITHUB_OUTPUT
+          # echo "WIN_EXECUTABLE_HASH=$(cat win_executable_hash.txt)" >> "$GITHUB_OUTPUT"
           # zip -r x86_64-pc-windows-gnu.zip target/release/*
           # sha256sum *.zip >> win_zip_hash.txt
           # cat win_zip_hash.txt
           # echo "Zip SHA-256 hash: $(cat win_zip_hash.txt)"
-          # echo "WIN_ZIP_HASH=$(cat win_zip_hash.txt)" >> $GITHUB_OUTPUT
+          # echo "WIN_ZIP_HASH=$(cat win_zip_hash.txt)" >> "$GITHUB_OUTPUT"
 
       # - name: Upload artifacts
       #   uses: actions/upload-artifact@main
@@ -106,9 +106,9 @@ jobs:
       - name: Release Type
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
-            echo "PRERELEASE=false" >> $GITHUB_ENV
+            echo "PRERELEASE=false" >> "$GITHUB_ENV"
           else
-            echo "PRERELEASE=true" >> $GITHUB_ENV
+            echo "PRERELEASE=true" >> "$GITHUB_ENV"
           fi
 
       - uses: actions/checkout@main
@@ -126,10 +126,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.1.6  # Replace with your desired version tag
-          release_name: Release v1.1.6  # Replace with your desired release name
+          tag_name: v1.1.7  # Replace with your desired version tag
+          release_name: Release v1.1.7  # Replace with your desired release name
           body: |
             **Release Notes**
+            Docs can be found at: jikken.io
+            Check the CHANGELOG.md for details.
 
             SHA-256 Binary Hashes
             - Windows (jk.exe): WINDOWS-HASH
