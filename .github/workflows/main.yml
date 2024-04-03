@@ -104,7 +104,10 @@ jobs:
           name: upload-linux
 
       - name: Linux SHA
-        run: echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV" 
+        run: |
+          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV" 
+          pwd
+          ls -la
 
       - uses: actions/download-artifact@main
         name: Download Mac
@@ -112,8 +115,10 @@ jobs:
           name: upload-mac
 
       - name: MacOS SHA
-        run: echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV" 
- 
+        run: |
+          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV" 
+          pwd
+          ls -la
       - name: Release Type
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
@@ -139,8 +144,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.2.9  # Replace with your desired version tag
-          release_name: Release v1.2.9  # Replace with your desired release name
+          tag_name: v1.3.0  # Replace with your desired version tag
+          release_name: Release v1.3.0  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
@@ -158,6 +163,15 @@ jobs:
 
           draft: false
           prerelease: ${{ env.PRERELEASE }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@main
+        with:
+          name: Upload Artifacts to Release
+          path: |
+            upload-linux/jikken-x86_64-linux.tar.gz
+            upload-mac/jikken-x86_64-apple-darwin.tar.gz
+
 
       # - name: Setup upterm session
       #   uses: lhotari/action-upterm@v1
