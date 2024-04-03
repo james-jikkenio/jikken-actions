@@ -15,7 +15,7 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Compile (Linux)
+      - name: Compile-Linux
         run: |
           cargo build --release
           sha256sum target/release/jk > linux_executable_hash.txt
@@ -43,7 +43,8 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Compile (macOS)
+      - name: Compile-macOS
+        id: compile-mac
         run: |
           cargo build --release
           openssl sha256 target/release/jk > mac_executable_hash.txt
@@ -108,12 +109,14 @@ jobs:
             echo "PRERELEASE=true" >> $GITHUB_ENV
           fi
 
-      # - uses: actions/checkout@main
-      # - name: Get ENV Variables
-      #   run: |
-      #     echo "Windows (jk.exe): WINDOWS-HASH"
-      #     echo "Linux (jk): ${{ needs.build-linux.outputs.LINUX_EXECUTABLE_HASH }}"
-      #     echo "Mac (jk): ${{ needs.build-mac.outputs.MAC_EXECUTABLE_HASH }}"
+      - uses: actions/checkout@main
+      - name: Get ENV Variables
+        run: |
+          echo "Windows (jk.exe): WINDOWS-HASH"
+          echo "Linux (jk): ${{ steps.build-linux.outputs.LINUX_EXECUTABLE_HASH }}"
+          echo "Linux compressed hash ${{ steps.build-linux.outputs.LINUX_ZIP_HASH }}"
+          echo "Mac (jk): ${{ steps.build-mac.outputs.MAC_EXECUTABLE_HASH }}"
+          echo "MacOS compressed hash ${{ steps.build-mac.outputs.MAC_ZIP_HASH }}"
 
 
       - name: Create Release
@@ -121,8 +124,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.1.4  # Replace with your desired version tag
-          release_name: Release v1.1.4  # Replace with your desired release name
+          tag_name: v1.1.5  # Replace with your desired version tag
+          release_name: Release v1.1.5  # Replace with your desired release name
           body: |
             **Release Notes**
 
