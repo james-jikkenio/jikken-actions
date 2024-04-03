@@ -33,14 +33,6 @@ jobs:
           name: upload-linux
           path: upload-linux
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          ## limits ssh access and adds the ssh public key for the user which triggered the workflow
-          limit-access-to-actor: true
-          ## limits ssh access and adds the ssh public keys of the listed GitHub users
-          limit-access-to-users: james-jikkenio,louis-jikkenio          
-
   build-mac:
     runs-on: macos-latest
 
@@ -130,13 +122,25 @@ jobs:
             echo "PRERELEASE=true" >> "$GITHUB_ENV"
           fi
 
+      - name: upload-linux-zip
+        uses: actions/upload-artifact@main
+        with:
+          name: upload-linux
+          path: upload-linux/jikken-x86_64-linux.tar.gz
+
+      - name: upload-mac-zip
+        uses: actions/upload-artifact@main
+        with:
+          name: upload-mac
+          path: upload-mac/jikken-x86_64-apple-darwin.tar.gz
+
       - name: Create Release
         uses: actions/create-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.2.8  # Replace with your desired version tag
-          release_name: Release v1.2.8  # Replace with your desired release name
+          tag_name: v1.2.9  # Replace with your desired version tag
+          release_name: Release v1.2.9  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
