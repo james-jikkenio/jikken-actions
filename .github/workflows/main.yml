@@ -19,13 +19,8 @@ jobs:
         id: compile-linux
         run: |
           cargo build --release
-          sha256sum target/release/jk | awk '{print $1}' > linux_executable_hash.txt
-          cat linux_executable_hash.txt
-          echo "Executable SHA-256 hash: $(cat linux_executable_hash.txt)"
-          echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> "$GITHUB_ENV"
           tar -zcvf jikken-x86_64-linux.tar.gz target/release/jk
-          sha256sum jikken-x86_64-linux.tar.gz | awk '{print $1}' > linux_zip_hash.txt
-          mkdir -p upload-linux && cp "jikken-x86_64-linux.tar.gz" "linux_zip_hash.txt" upload-linux/
+          mkdir -p upload-linux && cp "jikken-x86_64-linux.tar.gz" upload-linux/
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
@@ -46,14 +41,8 @@ jobs:
         id: compile-mac
         run: |
           cargo build --release
-          openssl sha256 target/release/jk | awk '{print $1}' > mac_executable_hash.txt
-          cat mac_executable_hash.txt
-          echo "Executable SHA-256 hash: $(cat mac_executable_hash.txt)"
-          echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> "$GITHUB_ENV"
           tar -zcvf jikken-x86_64-apple-darwin.tar.gz target/release/jk
-          openssl sha256 jikken-x86_64-apple-darwin.tar.gz > mac_zip_hash_ugly.txt
-          awk -F= '{print $2}' mac_zip_hash_ugly.txt > mac_zip_hash.txt
-          mkdir -p upload-mac && cp "jikken-x86_64-apple-darwin.tar.gz" "mac_zip_hash.txt" upload-mac/
+          mkdir -p upload-mac && cp "jikken-x86_64-apple-darwin.tar.gz" upload-mac/
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
@@ -103,12 +92,6 @@ jobs:
         with:
           name: upload-linux
 
-      - name: Linux SHA
-        run: |
-          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV" 
-          pwd
-          ls -la
-
       - uses: actions/download-artifact@main
         name: Download Mac
         with:
@@ -116,9 +99,22 @@ jobs:
 
       - name: MacOS SHA
         run: |
-          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV" 
-          pwd
-          ls -la
+          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV"
+
+      - name: Get SHA256 Values
+        run: |
+          mkdir jk_linux jk_mac jk_windows
+          sha256sum jikken-x86_64-linux.tar.gz | awk '{print $1}' > linux_zip_hash.txt
+          sha256sum jikken-x86_64-apple-darwin.tar.gz | awk '{print $1}' > mac_zip_hash.txt
+          tar -xf jikken-x86_64-linux.tar.gz -C jk_linux
+          tar -xf jikken-x86_64-apple-darwin.tar.gz -C jk_mac
+          sha256sum jk_linux/jk | awk '{print $1}' > linux_exe_hash.txt
+          sha256sum jk_mac/jk | awk '{print $1}' > mac_exe_hash.txt
+          echo "LINUX_EXE_HASH=$(cat linux_exe_hash.txt)" >> "$GITHUB_ENV" 
+          echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV"
+          echo "MAC_EXE_HASH=$(cat mac_exe_hash.txt)" >> "$GITHUB_ENV"      
+          echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV"
+
       - name: Release Type
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
@@ -127,25 +123,25 @@ jobs:
             echo "PRERELEASE=true" >> "$GITHUB_ENV"
           fi
 
-      - name: upload-linux-zip
-        uses: actions/upload-artifact@main
-        with:
-          name: upload-linux
-          path: upload-linux/jikken-x86_64-linux.tar.gz
+      # - name: upload-linux-zip
+      #   uses: actions/upload-artifact@main
+      #   with:
+      #     name: upload-linux
+      #     path: upload-linux/jikken-x86_64-linux.tar.gz
 
-      - name: upload-mac-zip
-        uses: actions/upload-artifact@main
-        with:
-          name: upload-mac
-          path: upload-mac/jikken-x86_64-apple-darwin.tar.gz
+      # - name: upload-mac-zip
+      #   uses: actions/upload-artifact@main
+      #   with:
+      #     name: upload-mac
+      #     path: upload-mac/jikken-x86_64-apple-darwin.tar.gz
 
       - name: Create Release
         uses: actions/create-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.3.2  # Replace with your desired version tag
-          release_name: Release v1.3.2  # Replace with your desired release name
+          tag_name: v1.3.3  # Replace with your desired version tag
+          release_name: Release v1.3.3  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
@@ -153,8 +149,8 @@ jobs:
 
             SHA-256 Binary Hashes
             - Windows (jk.exe): WINDOWS-HASH
-            - Linux (jk): ${{ steps.compile-linux.outputs.LINUX_EXECUTABLE_HASH }}
-            - Mac (jk): ${{ steps.compile-mac.outputs.MAC_EXECUTABLE_HASH }}
+            - Linux (jk): ${{ env.LINUX_EXE_HASH }}
+            - Mac (jk): ${{ env.MAC_EXE_HASH }}
 
             SHA-256 Binary Hashes of compressed files.              
             - Windows (jikken-windows.zip)
