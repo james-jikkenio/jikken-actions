@@ -30,7 +30,7 @@ jobs:
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
         with:
-          name: Upload Directory Linux
+          name: upload-linux
           path: upload-linux
           
   build-mac:
@@ -58,7 +58,7 @@ jobs:
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
         with:
-          name: Upload Directory Mac
+          name: upload-mac
           path: upload-mac
 
   # build-windows:
@@ -132,8 +132,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.2.5  # Replace with your desired version tag
-          release_name: Release v1.2.5  # Replace with your desired release name
+          tag_name: v1.2.6  # Replace with your desired version tag
+          release_name: Release v1.2.6  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
