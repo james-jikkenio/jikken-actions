@@ -169,8 +169,8 @@ jobs:
         with:
           name: Upload Artifacts to Release
           path: |
-            upload-linux/jikken-x86_64-linux.tar.gz
-            upload-mac/jikken-x86_64-apple-darwin.tar.gz
+            jikken-x86_64-linux.tar.gz
+            jikken-x86_64-apple-darwin.tar.gz
 
 
       # - name: Setup upterm session
