@@ -25,18 +25,13 @@ jobs:
           echo "LINUX_EXECUTABLE_HASH=$(cat linux_executable_hash.txt)" >> "$GITHUB_ENV"
           tar -zcvf jikken-x86_64-linux.tar.gz target/release/
           sha256sum jikken-x86_64-linux.tar.gz > linux_zip_hash.txt
+          mkdir -p upload-mac && cp "jikken-x86_64-linux.tar.gz" "linux_zip_hash.txt" upload-linux/
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
         with:
-          name: jikken-x86_64-linux.tar.gz
-          path: jikken-x86_64-linux.tar.gz
-
-      - name: Attach compressed file to release
-        uses: actions/upload-artifact@main
-        with:
-          name: linux_zip_hash.txt
-          path: linux_zip_hash.txt
+          name: Upload Directory Linux
+          path: upload-linux
           
   build-mac:
     runs-on: macos-latest
@@ -57,18 +52,13 @@ jobs:
           echo "MAC_EXECUTABLE_HASH=$(cat mac_executable_hash.txt)" >> "$GITHUB_ENV"
           tar -zcvf jikken-x86_64-apple-darwin.tar.gz target/release/
           openssl sha256 jikken-x86_64-apple-darwin.tar.gz > mac_zip_hash.txt
+          mkdir -p upload-mac && cp "jikken-x86_64-apple-darwin.tar.gz" "mac_zip_hash.txt" upload-mac/
 
       - name: Attach compressed file to release
         uses: actions/upload-artifact@main
         with:
-          name: jikken-x86_64-apple-darwin.tar.gz
-          path: jikken-x86_64-apple-darwin.tar.gz
-
-      - name: Attach compressed file to release
-        uses: actions/upload-artifact@main
-        with:
-          name: mac_zip_hash.txt
-          path: mac_zip_hash.txt
+          name: Upload Directory Mac
+          path: upload-mac
 
   # build-windows:
   #   runs-on: windows-latest
@@ -108,26 +98,21 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@main
-        name: Download Mac
-        with:
-          name: mac_zip_hash.txt
-
-      - name: Mac.txt
-        run: echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV"  
-
-      - uses: actions/download-artifact@main
-        name: Download Mac Zip
-        with:
-          name: jikken-x86_64-apple-darwin.tar.gz
-
-      - uses: actions/download-artifact@main
         name: Download Linux
         with:
-          name: linux_zip_hash.txt
+          name: upload-linux
 
-      - name: Linux.txt
-        run: echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV"          
+      - name: Linux SHA
+        run: echo "LINUX_ZIP_HASH=$(cat linux_zip_hash.txt)" >> "$GITHUB_ENV" 
 
+      - uses: actions/download-artifact@main
+        name: Download Mac
+        with:
+          name: upload-mac
+
+      - name: MacOS SHA
+        run: echo "MAC_ZIP_HASH=$(cat mac_zip_hash.txt)" >> "$GITHUB_ENV" 
+ 
       - uses: actions/download-artifact@main
         name: Download Linux Zip
         with:
@@ -146,8 +131,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.2.3  # Replace with your desired version tag
-          release_name: Release v1.2.3  # Replace with your desired release name
+          tag_name: v1.2.4  # Replace with your desired version tag
+          release_name: Release v1.2.4  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
