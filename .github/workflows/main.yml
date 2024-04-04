@@ -6,18 +6,27 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  BUILD_TARGET: x86_64-unknown-linux-musl
-  BINARY_NAME: jk
+
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build-musl
-      uses: gmiam/rust-musl-action@master
-      with:
-        args: cargo build --target $BUILD_TARGET --release
-    - uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.BINARY_NAME }}
-        path: target/x86_64-unknown-linux-musl/release/${{ env.BINARY_NAME }}*
+      - uses: actions/checkout@main
+
+      - name: Compile-Linux-musl
+        id: compile-linux-musl
+        uses: gmiam/rust-musl-action@master
+        with:
+          args: cargo build --target x86_64-unknown-linux-musl --release
+        
+      - name: Compile-linux
+        id: compile-linux
+        run: |
+          tar -czf jikken-x86_64-linux.tar.gz -C target/x86_64-unknown-linux-musl/release/ jk
+          mkdir -p upload-linux && cp "jikken-x86_64-linux.tar.gz" upload-linux/
+
+      - name: Attach compressed file to release
+        uses: actions/upload-artifact@main
+        with:
+          name: upload-linux
+          path: upload-linux
