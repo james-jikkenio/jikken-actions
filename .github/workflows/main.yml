@@ -123,6 +123,14 @@ jobs:
           mv jikken-x86_64-unknown-linux-musl.tar.gz "jikken-v ${{ env.RELEASE_VER }} -x86_64-unknown-linux-musl.tar.gz"
           mv jikken-x86_64-apple-darwin.tar.gz "jikken-v ${{ env.RELEASE_VER }} -x86_64-apple-darwin.tar.gz"
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          ## limits ssh access and adds the ssh public key for the user which triggered the workflow
+          limit-access-to-actor: true
+          ## limits ssh access and adds the ssh public keys of the listed GitHub users
+          limit-access-to-users: james-jikkenio,louis-jikkenio
+          
       - name: Release Type
         run: |
           if [[ ${{ github.ref }} == refs/heads/main ]]; then
