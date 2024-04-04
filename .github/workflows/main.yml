@@ -123,12 +123,13 @@ jobs:
           fi
 
       - name: Create Release
+        id: create_release
         uses: actions/create-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}  # Access token for creating releases
         with:
-          tag_name: v1.5.0  # Replace with your desired version tag
-          release_name: Release v1.5.0  # Replace with your desired release name
+          tag_name: v1.5.1  # Replace with your desired version tag
+          release_name: Release v1.5.1  # Replace with your desired release name
           body: |
             **Release Notes**
             Docs can be found at: jikken.io
@@ -148,16 +149,45 @@ jobs:
           draft: false
           prerelease: ${{ env.PRERELEASE }}
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@main
+      - name: Upload Artifacts Linux Zip
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
-          name: Upload Artifacts to Release
-          path: |
-            jikken-x86_64-linux.tar.gz
-            jikken-x86_64-apple-darwin.tar.gz
-            jikken-windows.zip
-            jikken-windows.exe
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./jikken-x86_64-linux.tar.gz
+          asset_name: jikken-x86_64-linux.tar.gz
+          asset_content_type: zip
 
+      - name: Upload Artifacts MacOS Zip
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./jikken-x86_64-apple-darwin.tar.gz
+          asset_name: jikken-x86_64-apple-darwin.tar.gz
+          asset_content_type: zip
+
+      - name: Upload Artifacts Windows Zip
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./jikken-windows.zip
+          asset_name: jikken-windows.zip
+          asset_content_type: zip    
+
+      - name: Upload Artifacts Windows exe
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./jikken-windows.exe
+          asset_name: jikken-windows.exe
+          asset_content_type: application     
 
       # - name: Setup upterm session
       #   uses: lhotari/action-upterm@v1
