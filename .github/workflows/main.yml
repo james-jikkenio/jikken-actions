@@ -1,4 +1,4 @@
-name: Build, Compile, and Release Rust Program
+name: Build, Compile, and Release Jikken
 
 on:
   push:
